@@ -24,7 +24,7 @@ pub fn main() {
     let mut rect = Rectangle {
         m_mass: 10.0,
         m_pos: Vector2::new(50.0, 550.0),
-        m_vel: Vector2::new(10.0, 0.0),
+        m_vel: Vector2::new(0.0, 0.0),
         m_owner: scene,
         m_time_fallen: 0.0,
         width: 10.0,

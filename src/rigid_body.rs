@@ -45,17 +45,18 @@ impl RigidBody for Rectangle {
         // r=density
         // V=velocity
         let area = self.width * self.height;
-        let drag_unit = self.owner().drag_coefficient
-            * area
-            * (self.owner().fluid_density(FluidMolarWeight::Air) / 1000.0)
-            * self.vel().len()
-            * 0.5;
+        let drag_unit = Vector2::from(self.owner().drag_coefficient)
+            * Vector2::from(area)
+            * Vector2::from(self.owner().fluid_density(FluidMolarWeight::Air) / 1000.0)
+            * self.vel()
+            * self.vel()
+            * Vector2::from(0.5);
         println!(
             "fluid_density: {}, area: {},",
             self.owner().fluid_density(FluidMolarWeight::Air),
             area,
         );
-        let drag_force = self.vel().normalized() * Vector2::from(drag_unit);
+        let drag_force = self.vel().normalized() * drag_unit;
         println!(
             "vel_x: {}, vel_y: {}, drag_x: {}, drag_y: {},",
             self.m_vel.x, self.m_vel.y, drag_force.x, drag_force.y
