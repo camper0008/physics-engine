@@ -28,8 +28,7 @@ impl Scene {
         // which, when reorganised becomes
         // (1 / (R * T)) * P * M * V * (1 / V) = m / V (move all divisions into 1 over x)
         // (1 / (R * T)) * P * M = m / V (calculate V*1/V = 1)
-        // (P * M) / (R * T) = m / V (move 1 / x back into the original)
-        // PM / RT = m / V = density (simplify)
+        // (P * M) / (R * T) = m / V = density (move 1 / RT back over PM)
         (self.pressure * molar_weight as u64 as f64) / (8.31 * self.temperature)
     }
 }
