@@ -63,12 +63,10 @@ impl RigidBody for Rectangle {
             * 0.001; // because we got air density in g/m^3 and we want kg/k^3
 
         // since F=ma, then a=F/m
-        // also times by delta to convert it from acceleration per second to acceleration per frame
         let drag_acceleration = drag_force / self.m_mass;
-        println!("{}", drag_force);
         // then convert to a vector in the proper direction
         let drag_vector = self.m_vel.normalized() * Vector2::from(drag_acceleration);
-        let res_force = (self.m_vel - drag_vector - gravity_force) * Vector2::from(delta);
+        let res_force = (self.m_vel + drag_vector + gravity_force) * Vector2::from(delta);
         self.m_pos = self.m_pos + res_force;
         self.m_time_fallen += delta;
     }

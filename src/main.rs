@@ -14,28 +14,34 @@ use sdl2::pixels::Color;
 use sdl2::rect::Rect;
 use std::time::Duration;
 
+const CANVAS_WIDTH: f64 = 1000.0;
+const CANVAS_HEIGHT: f64 = 1000.0;
+const PIXEL_PER_METER: f64 = 4.0;
+
 pub fn main() {
+    let mut paused = false;
+
     let scene = Scene {
-        gravity: Vector2::new(0.0, 9.82),
+        gravity: Vector2::new(0.0, -9.82),
         pressure: 101325.0,  // 1atm in pascal
         temperature: 293.15, // 20c in kelvin
     };
     let mut rect = Rectangle {
         m_drag_coefficient: 2.1, // magic number
         m_mass: 10.0,
-        m_pos: Vector2::new(50.0, 550.0),
+        m_pos: Vector2::new(5.0, CANVAS_HEIGHT * 0.9 / PIXEL_PER_METER),
         m_vel: Vector2::new(10.0, 0.0),
         m_owner: scene,
         m_time_fallen: 0.0,
-        width: 10.0,
-        height: 10.0,
+        width: 0.5,
+        height: 0.5,
     };
 
     let sdl_context = sdl2::init().unwrap();
     let video_subsystem = sdl_context.video().unwrap();
 
     let window = video_subsystem
-        .window("rust-sdl2 demo", 800, 600)
+        .window("rust-sdl2 demo", CANVAS_WIDTH as u32, CANVAS_HEIGHT as u32)
         .position_centered()
         .build()
         .unwrap();
@@ -56,6 +62,10 @@ pub fn main() {
                     keycode: Some(Keycode::Escape),
                     ..
                 } => break 'running,
+                Event::KeyDown {
+                    keycode: Some(Keycode::Space),
+                    ..
+                } => paused = !paused,
                 _ => {}
             }
         }
@@ -63,18 +73,20 @@ pub fn main() {
         canvas.set_draw_color(Color::RGB(000, 000, 255));
         canvas
             .fill_rect(Rect::new(
-                (rect.pos().x - rect.width * 0.5) as i64 as i32,
-                (600.0 - (rect.pos().y - rect.height * 0.5)) as i64 as i32,
-                (rect.width) as u64 as u32,
-                (rect.height) as u64 as u32,
+                ((rect.pos().x - rect.width * 0.5) * PIXEL_PER_METER) as i64 as i32,
+                (CANVAS_HEIGHT - ((rect.pos().y - rect.height * 0.5) * PIXEL_PER_METER)) as i64
+                    as i32,
+                (rect.width * PIXEL_PER_METER) as u64 as u32,
+                (rect.height * PIXEL_PER_METER) as u64 as u32,
             ))
             .unwrap();
 
-        rect.tick(1.0 / 60.0);
-
+        if !paused {
+            rect.tick(1.0 / 60.0);
+        }
         // The rest of the game loop goes here...
 
         canvas.present();
-        ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 60)); // fancy way of saying 1 / 60 seconds
+        ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 60)); // 1 second in nanoseconds over 60; 60fps
     }
 }
