@@ -18,14 +18,14 @@ use std::time::Duration;
 pub fn main() {
     let scene = Scene {
         gravity: Vector2::new(0.0, 9.82),
-        pressure: 101325.0,     // 1atm in pascal
-        temperature: 293.15,    // 20c in kelvin
-        drag_coefficient: 1.12, // magic number
+        pressure: 101325.0,  // 1atm in pascal
+        temperature: 293.15, // 20c in kelvin
     };
     let mut rect = Rectangle {
+        m_drag_coefficient: 2.1, // magic number
         m_mass: 10.0,
         m_pos: Vector2::new(50.0, 550.0),
-        m_vel: Vector2::new(0.0, 0.0),
+        m_vel: Vector2::new(10.0, 0.0),
         m_owner: scene,
         m_time_fallen: 0.0,
         width: 10.0,

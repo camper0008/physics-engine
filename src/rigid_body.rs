@@ -7,6 +7,8 @@ pub trait RigidBody {
     fn mass(&self) -> f64;
     fn tick(&mut self, delta: f64);
     fn owner(&self) -> Scene;
+    fn drag_coefficient(&self) -> f64;
+    fn area(&self) -> f64;
 }
 
 pub struct Rectangle {
@@ -17,6 +19,7 @@ pub struct Rectangle {
     pub width: f64,
     pub height: f64,
     pub m_time_fallen: f64,
+    pub m_drag_coefficient: f64,
 }
 
 impl RigidBody for Rectangle {
@@ -29,39 +32,43 @@ impl RigidBody for Rectangle {
     fn mass(&self) -> f64 {
         self.m_mass
     }
+    fn area(&self) -> f64 {
+        self.width * self.height
+    }
     fn owner(&self) -> Scene {
         self.m_owner
     }
+    fn drag_coefficient(&self) -> f64 {
+        self.m_drag_coefficient
+    }
     fn tick(&mut self, delta: f64) {
-        // f=m*a hvor a = gravity_constant
+        // f=m*a where a = gravity_constant
         let gravity_constant = self.owner().gravity;
         let gravity_force =
             Vector2::from(self.mass()) * gravity_constant * Vector2::from(self.m_time_fallen);
-        // D = Cd * A * .5 * r * V^2
+        // D = C * A * .5 * r * v^2
         // where
-        // D=drag
-        // Cd=drag_coefficient
+        // D=drag force
+        // C=drag coefficient
         // A=area
         // r=density
-        // V=velocity
+        // v=speed
+        // we convert velocity to speed by getting the length of it
         let area = self.width * self.height;
-        let drag_unit = Vector2::from(self.owner().drag_coefficient)
-            * Vector2::from(area)
-            * Vector2::from(self.owner().fluid_density(FluidMolarWeight::Air) / 1000.0)
-            * self.vel()
-            * self.vel()
-            * Vector2::from(0.5);
-        println!(
-            "fluid_density: {}, area: {},",
-            self.owner().fluid_density(FluidMolarWeight::Air),
-            area,
-        );
-        let drag_force = self.vel().normalized() * drag_unit;
-        println!(
-            "vel_x: {}, vel_y: {}, drag_x: {}, drag_y: {},",
-            self.m_vel.x, self.m_vel.y, drag_force.x, drag_force.y
-        );
-        let res_force = (self.m_vel - drag_force - gravity_force) * Vector2::from(delta);
+        let drag_force = self.m_drag_coefficient
+            * area
+            * self.owner().fluid_density(FluidMolarWeight::Air)
+            * self.vel().len().powf(2.0)
+            * 0.5
+            * 0.001; // because we got air density in g/m^3 and we want kg/k^3
+
+        // since F=ma, then a=F/m
+        // also times by delta to convert it from acceleration per second to acceleration per frame
+        let drag_acceleration = drag_force / self.m_mass;
+        println!("{}", drag_force);
+        // then convert to a vector in the proper direction
+        let drag_vector = self.m_vel.normalized() * Vector2::from(drag_acceleration);
+        let res_force = (self.m_vel - drag_vector - gravity_force) * Vector2::from(delta);
         self.m_pos = self.m_pos + res_force;
         self.m_time_fallen += delta;
     }
