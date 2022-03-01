@@ -8,8 +8,15 @@ pub struct Scene {
 }
 
 pub enum FluidMolarWeight {
-    // g over mol
-    Air = 29,
+    Air,
+}
+
+impl FluidMolarWeight {
+    fn value(&self) -> f64 {
+        match self {
+            FluidMolarWeight::Air => 0.029,
+        }
+    }
 }
 
 impl Scene {
@@ -29,6 +36,6 @@ impl Scene {
         // (1 / (R * T)) * P * M * V * (1 / V) = m / V (move all divisions into 1 over x)
         // (1 / (R * T)) * P * M = m / V (calculate V*1/V = 1)
         // (P * M) / (R * T) = m / V = density (move 1 / RT back over PM)
-        (self.pressure * molar_weight as u64 as f64) / (8.31 * self.temperature)
+        (self.pressure * molar_weight.value() as u64 as f64) / (8.31 * self.temperature)
     }
 }
