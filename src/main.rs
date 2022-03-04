@@ -16,7 +16,7 @@ use std::time::Duration;
 
 const CANVAS_WIDTH: f64 = 1000.0;
 const CANVAS_HEIGHT: f64 = 1000.0;
-const PIXEL_PER_METER: f64 = 4.0;
+const PIXEL_PER_METER: f64 = 1.0;
 
 pub fn main() {
     let mut paused = false;
@@ -27,15 +27,31 @@ pub fn main() {
         temperature: 293.15, // 20c in kelvin
     };
     let mut rect = Rectangle {
-        m_drag_coefficient: 2.1, // magic number
-        m_mass: 10.0,
-        m_pos: Vector2::new(5.0, CANVAS_HEIGHT * 0.9 / PIXEL_PER_METER),
-        m_vel: Vector2::new(10.0, 0.0),
+        m_drag_coefficient: 1.4, // magic number
+        m_mass: 1.0,
+        m_pos: Vector2::new(
+            CANVAS_WIDTH * 0.5 / PIXEL_PER_METER,
+            CANVAS_HEIGHT * 0.9 / PIXEL_PER_METER,
+        ),
+        m_vel: Vector2::new(1.0, 00.0),
         m_owner: scene,
         m_time_fallen: 0.0,
-        width: 0.5,
-        height: 0.5,
+        width: 100.0,
+        height: 100.0,
     };
+
+    /*
+    let mut rect2 = Rectangle {
+        m_drag_coefficient: 2.1, // magic number
+        m_mass: 0.1,
+        m_pos: Vector2::new(5.0, CANVAS_HEIGHT * 0.9 / PIXEL_PER_METER),
+        m_vel: Vector2::new(1.0, 0.0),
+        m_owner: scene,
+        m_time_fallen: 0.0,
+        width: 100.0,
+        height: 100.0,
+    };
+    */
 
     let sdl_context = sdl2::init().unwrap();
     let video_subsystem = sdl_context.video().unwrap();
@@ -80,9 +96,22 @@ pub fn main() {
                 (rect.height * PIXEL_PER_METER) as u64 as u32,
             ))
             .unwrap();
+        /*
+        canvas.set_draw_color(Color::RGB(255, 000, 000));
+        canvas
+            .fill_rect(Rect::new(
+                ((rect2.pos().x - rect2.width * 0.5) * PIXEL_PER_METER) as i64 as i32,
+                (CANVAS_HEIGHT - ((rect2.pos().y - rect2.height * 0.5) * PIXEL_PER_METER)) as i64
+                    as i32,
+                (rect2.width * PIXEL_PER_METER) as u64 as u32,
+                (rect2.height * PIXEL_PER_METER) as u64 as u32,
+            ))
+            .unwrap();
+        */
 
         if !paused {
             rect.tick(1.0 / 60.0);
+            //rect2.tick(1.0 / 60.0);
         }
         // The rest of the game loop goes here...
 

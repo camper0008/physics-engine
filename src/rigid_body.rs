@@ -60,12 +60,20 @@ impl RigidBody for Rectangle {
             * self.owner().fluid_density(FluidMolarWeight::Air)
             * self.vel().len().powf(2.0)
             * 0.5
-            * 0.001; // because we got air density in g/m^3 and we want kg/k^3
+            * 0.001 // because we got air density in g/m^3 and we want kg/m^3
+            * -1.0; // because it's in the opposite direction
 
-        // since F=ma, then a=F/m
-        let drag_acceleration = drag_force / self.m_mass;
+        println!("drag: {}", drag_force);
+        println!(
+            "air resistance: {}",
+            self.owner().fluid_density(FluidMolarWeight::Air)
+        );
+
+        // since F=ma, then a=F/m; times by the time taken to get velocity
+        let drag_velocity = (drag_force / self.m_mass) * delta;
+        println!("drag_vel: {}", drag_velocity);
         // then convert to a vector in the proper direction
-        let drag_vector = self.m_vel.normalized() * Vector2::from(drag_acceleration);
+        let drag_vector = self.m_vel.normalized() * Vector2::from(drag_velocity);
         let res_force = (self.m_vel + drag_vector + gravity_force) * Vector2::from(delta);
         self.m_pos = self.m_pos + res_force;
         self.m_time_fallen += delta;
